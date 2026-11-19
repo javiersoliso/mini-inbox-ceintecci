@@ -1,0 +1,24 @@
+{
+  "name": "mini-inbox",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "test": "bun run --filter '*' test",
+    "check-types": "bun run --filter '*' check-types",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.4",
+    "oxfmt": "0.61.0",
+    "oxlint": "1.76.0",
+    "typescript": "7.0.2"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@mini-inbox/types": "workspace:*",
+    "fastify": "5.12.7",
+    "zod": "4.2.1"
+  },
+  "devDependencies": {
+    "vitest": "3.2.4"
+  }
+}
