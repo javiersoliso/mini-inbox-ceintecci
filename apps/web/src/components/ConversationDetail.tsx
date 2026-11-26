@@ -1,5 +1,6 @@
 import { useConversation } from '../hooks/conversations.ts'
 import { useMessages } from '../hooks/messages.ts'
+import { formatDateTime } from '../lib/format.ts'
 import { MessageComposer } from './MessageComposer.tsx'
 
 const AUTHOR_LABEL = { contact: 'Contacto', agent: 'Agente', bot: 'Bot' } as const
@@ -29,7 +30,7 @@ export const ConversationDetail = ({ conversationId }: Props) => {
             className={`message message-${message.author}`}
           >
             <span className="message-meta">
-              {AUTHOR_LABEL[message.author]} · {message.sentAt}
+              {AUTHOR_LABEL[message.author]} · {formatDateTime(message.sentAt)}
             </span>
             <p>{message.text}</p>
           </li>

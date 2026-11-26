@@ -8,8 +8,8 @@ export const MessageRawSchema = {
   conversationId: z.string(),
   author: messageAuthorSchema,
   text: z.string(),
-  /** Formato del proveedor de WhatsApp: "dd/mm/yyyy HH:mm" */
-  sentAt: z.string()
+  /** Instante en ISO 8601 (UTC). La API convierte el formato del proveedor al recibirlo. */
+  sentAt: z.iso.datetime()
 }
 
 export const messageSchema = z.object(MessageRawSchema)

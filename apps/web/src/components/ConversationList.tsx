@@ -1,4 +1,5 @@
 import { useConversations } from '../hooks/conversations.ts'
+import { formatDateTime } from '../lib/format.ts'
 
 type Props = { selectedId?: string; onSelect: (id: string) => void }
 
@@ -23,7 +24,7 @@ export const ConversationList = ({ selectedId, onSelect }: Props) => {
             onClick={() => onSelect(conversation.id)}
           >
             <span className="conversation-name">{conversation.contactName}</span>
-            <span className="conversation-date">{conversation.lastMessageAt}</span>
+            <span className="conversation-date">{formatDateTime(conversation.lastMessageAt)}</span>
             <span className="conversation-preview">
               {conversation.lastMessagePreview || 'Sin mensajes'}
             </span>

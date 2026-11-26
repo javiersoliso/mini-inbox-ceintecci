@@ -9,8 +9,11 @@ export const ConversationRawSchema = {
   id: z.string(),
   contactName: z.string(),
   contactPhone: z.string(),
-  /** Formato del proveedor de WhatsApp: "dd/mm/yyyy HH:mm" */
-  lastMessageAt: z.string(),
+  /**
+   * Instante en ISO 8601 (UTC), por ejemplo "2026-11-18T21:40:00.000Z".
+   * La API convierte el formato del proveedor ("dd/mm/yyyy HH:mm") al recibirlo.
+   */
+  lastMessageAt: z.iso.datetime(),
   lastMessagePreview: z.string()
 }
 
