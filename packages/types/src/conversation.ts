@@ -15,6 +15,10 @@ export const phoneSchema = z
   .pipe(z.string().regex(/^(\+57)?3\d{9}$/, 'Número de celular inválido'))
   .transform((digits) => `+57${digits.slice(-10)}`)
 
+/** Abierta: falta atenderla. Resuelta: el agente la dio por terminada (se puede reabrir). */
+export const conversationStatusSchema = z.enum(['open', 'resolved'])
+export type ConversationStatus = z.output<typeof conversationStatusSchema>
+
 export const ConversationRawSchema = {
   id: z.string(),
   contactName: z.string(),
@@ -24,13 +28,28 @@ export const ConversationRawSchema = {
    * La API convierte el formato del proveedor ("dd/mm/yyyy HH:mm") al recibirlo.
    */
   lastMessageAt: z.iso.datetime(),
-  lastMessagePreview: z.string()
+  lastMessagePreview: z.string(),
+  status: conversationStatusSchema
 }
 
 export const conversationSchema = z.object(ConversationRawSchema)
 export type Conversation = z.output<typeof conversationSchema>
 
 export const conversationListSchema = z.array(conversationSchema)
+
+/** Filtro de la bandeja: un estado, o "all" para no filtrar. */
+export const statusFilterSchema = z.enum(['open', 'resolved', 'all'])
+export type StatusFilter = z.output<typeof statusFilterSchema>
+
+/** Query de GET /api/conversations. Sin `status` devuelve todas, como antes. */
+export const listConversationsQuerySchema = z.object({ status: statusFilterSchema.default('all') })
+
+/**
+ * Body de PATCH /api/conversations/:id. Es estricto: rechaza campos desconocidos,
+ * para que un cliente no crea que cambió algo que la API ignoró.
+ */
+export const updateConversationInputSchema = z.strictObject({ status: conversationStatusSchema })
+export type UpdateConversationInput = z.output<typeof updateConversationInputSchema>
 
 export const createConversationInputSchema = z.object({
   contactName: z.string().trim().min(2, 'El nombre es muy corto'),

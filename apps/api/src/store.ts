@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto'
 
-import type { Conversation, Message, MessageAuthor } from '@mini-inbox/types'
+import type {
+  Conversation,
+  ConversationStatus,
+  Message,
+  MessageAuthor,
+  StatusFilter
+} from '@mini-inbox/types'
 
 import {
   seedConversations,
@@ -26,13 +32,15 @@ export const createStore = (
   const conversations = new Map(
     initial.conversations.map((c): [string, Conversation] => [
       c.id,
-      { ...c, lastMessageAt: toIso(c.lastMessageAt) }
+      // El proveedor no maneja estados: lo que llega está por atender.
+      { ...c, lastMessageAt: toIso(c.lastMessageAt), status: 'open' }
     ])
   )
   const messages = initial.messages.map((m): Message => ({ ...m, sentAt: toIso(m.sentAt) }))
 
   return {
-    listConversations: (): Conversation[] => [...conversations.values()],
+    listConversations: (status: StatusFilter = 'all'): Conversation[] =>
+      [...conversations.values()].filter((c) => status === 'all' || c.status === status),
 
     getConversation: (id: string): Conversation | undefined => conversations.get(id),
 
@@ -45,9 +53,17 @@ export const createStore = (
         contactName: input.contactName,
         contactPhone: input.contactPhone,
         lastMessageAt: now(),
-        lastMessagePreview: ''
+        lastMessagePreview: '',
+        status: 'open'
       }
       conversations.set(conversation.id, conversation)
+      return conversation
+    },
+
+    updateStatus: (id: string, status: ConversationStatus): Conversation | undefined => {
+      const conversation = conversations.get(id)
+      if (!conversation) return undefined
+      conversation.status = status
       return conversation
     },
 

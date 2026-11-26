@@ -1,7 +1,10 @@
 import type { Conversation, Message } from '@mini-inbox/types'
 
-/** Conversación tal como llega del proveedor: `lastMessageAt` en "dd/mm/yyyy HH:mm" (hora de Colombia). */
-export type ProviderConversation = Conversation
+/**
+ * Conversación tal como llega del proveedor: `lastMessageAt` en "dd/mm/yyyy HH:mm"
+ * (hora de Colombia) y sin `status`, que es un dato nuestro y no del proveedor.
+ */
+export type ProviderConversation = Omit<Conversation, 'status'>
 /** Mensaje tal como llega del proveedor: `sentAt` en "dd/mm/yyyy HH:mm" (hora de Colombia). */
 export type ProviderMessage = Message
 
