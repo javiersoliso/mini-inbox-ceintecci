@@ -1,5 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 
+import type { StatusFilter } from '@mini-inbox/types'
+
 const all = ['conversations'] as const
 
 /**
@@ -12,7 +14,8 @@ const all = ['conversations'] as const
  */
 export const conversationKeys = {
   all,
-  list: () => [...all, 'list'] as const,
+  /** Cada filtro es una consulta distinta en la caché: cambiar de pestaña no mezcla listas. */
+  list: (status: StatusFilter) => [...all, 'list', status] as const,
   detail: (id: string) => [...all, 'detail', id] as const,
   messages: (id: string) => [...all, 'detail', id, 'messages'] as const
 }
