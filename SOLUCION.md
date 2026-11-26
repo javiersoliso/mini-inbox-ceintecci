@@ -1,6 +1,8 @@
 # Solución — Mini Inbox
 
 > **Contexto.** El correo con la prueba no traía el enlace a este repositorio. Mientras llegaba, reconstruí el proyecto a partir del enunciado en otro repositorio ([javiersoliso/mini-inbox](https://github.com/javiersoliso/mini-inbox)). Esta entrega está hecha sobre el **código real**: `main` es el commit original y la rama `solucion` tiene un commit por cada cambio.
+>
+> **Cómo se hizo.** La hice con Claude Code. La IA hizo el diagnóstico, el código, los tests y la primera versión de este documento; el detalle está en [Uso de IA](#uso-de-ia). Donde este documento dice "encontré", "elegí" o "descarté", describe ese proceso. Antes de la entrevista voy a repetir cada paso yo mismo para poder defenderlo.
 
 Verificación final (todo termina sin errores): `bun run test` (42 tests: 33 en `api`, 9 en `web`), `bun run check-types`, `bun run lint` y `bun run fmt`.
 
@@ -48,6 +50,7 @@ Verificación final (todo termina sin errores): `bun run test` (42 tests: 33 en 
   - En la web: pestañas Abiertas / Resueltas / Todas; el detalle muestra el estado y un botón "Marcar como resuelta" / "Reabrir". El filtro vive en la URL, así que se mantiene al recargar.
   - Tests: 8 en la API (estado inicial, resolver y reabrir, cuerpos inválidos, 404, filtro y filtro inválido) y 7 en la web (leer y escribir el filtro en la URL).
 - **Decisiones que tomé y alternativas que descarté (y por qué):**
+  - _Nota:_ estas decisiones las propuso Claude Code y yo las acepté. Las estoy revisando una por una para poder defenderlas, o cambiarlas si al entenderlas no estoy de acuerdo.
   - **Un `enum` de estado en vez de un booleano `resolved`:** se lee mejor y permite agregar estados (por ejemplo, "pendiente") sin cambiar el contrato.
   - **`PATCH /:id` en vez de `POST /:id/resolve` y `/reopen`:** un solo endpoint de actualización parcial, idempotente. El cuerpo es estricto (`z.strictObject`): rechaza campos desconocidos para que un cliente no crea que cambió algo que la API ignoró.
   - **Filtrar en el servidor y no en el navegador:** el servidor sigue siendo la única fuente de verdad y el diseño aguanta paginación más adelante. El valor por defecto `all` mantiene el comportamiento anterior para quien no envíe el parámetro.
@@ -65,6 +68,19 @@ Verificación final (todo termina sin errores): `bun run test` (42 tests: 33 en 
 
 ## Documentación que consulté
 
+**Lo que consulté directamente:** el enunciado (el README del repositorio) y, sobre todo, las explicaciones de Claude Code a mis preguntas mientras avanzábamos:
+
+- qué pide la prueba y cómo justificar las decisiones;
+- cómo leer un repositorio en GitHub: Code, Preview, Blame, commits, y la diferencia entre la fecha de un commit y la fecha de creación del repositorio;
+- qué es cada parte del stack y por qué se usa: TypeScript, Bun y sus workspaces, Fastify, React, Vite, TanStack Query, Zod, Vitest, oxlint y oxfmt;
+- la estructura del monorepo (`apps/` y `packages/`) y sus archivos de configuración: `package.json`, `tsconfig`, `.gitignore`, `.oxlintrc.json`, `.oxfmtrc.json` y `vite.config.ts`;
+- qué es una API y cómo distinguir el servidor de la web;
+- qué hace cada componente de React y cómo funcionan los hooks y la caché de TanStack Query;
+- cómo se encuentra cada error leyendo el código, y la diferencia entre corregir la causa raíz y corregir el síntoma;
+- cómo funcionan las ramas, `main` y el Pull Request, y cómo correr y probar todo desde la consola.
+
+**Documentación oficial en la que se apoyan las decisiones.** La citó Claude Code; no la leí durante la entrega y la estoy leyendo para la entrevista:
+
 - TanStack Query — [Query Keys](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys), [Query Invalidation](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation), [Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults) (`staleTime`)
 - Zod — [API](https://zod.dev/api): `z.iso.datetime()`, `z.strictObject`, `.transform()` y `.pipe()`
 - MDN — [String.prototype.localeCompare](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare), [Date.UTC](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/UTC), [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat), [History.replaceState](https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState), [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
@@ -75,8 +91,12 @@ Verificación final (todo termina sin errores): `bun run test` (42 tests: 33 en 
 ## Uso de IA
 
 - **Herramienta(s):** Claude Code (modelo Claude Opus 5.5).
-- **Para qué la usé:**
-  - Leer el repositorio conmigo y explicarme su estructura.
-  - Reproducir cada error con evidencia: el test que falla, un `QueryClient` real y la ejecución con otra zona horaria.
-  - Proponer y escribir los cambios, los tests y este documento.
-  - Cada cambio pasó por las cuatro verificaciones antes de su commit. Las decisiones y su justificación están aquí y en los mensajes de commit.
+- **Para qué la usé, siendo transparente:**
+  - **Hizo casi todo el trabajo técnico:** leyó el repositorio, reprodujo cada error con evidencia (el test que falla, un `QueryClient` real y la ejecución con otra zona horaria), propuso y escribió las correcciones, la funcionalidad, los tests, los mensajes de commit y la primera versión de este documento, y lo probó en el navegador. Cada cambio pasó por las cuatro verificaciones antes de su commit.
+  - **Como tutor:** a la par del trabajo, me explicó todo lo que le pregunté (la lista está en "Documentación que consulté").
+  - **Lo que decidí yo:**
+    - pedir el repositorio cuando el enlace no llegó y, mientras tanto, reconstruirlo a partir del enunciado;
+    - hacer la entrega sobre el código real en un repositorio nuevo, sin tocar la reconstrucción;
+    - ir estudiando cada parte mientras la completábamos y la verificábamos, preguntando todo lo que no entendía;
+    - declarar todo esto tal cual.
+  - **Lo que estoy haciendo ahora:** reproducir cada error en `main` y verlo corregido en `solucion`, y leer cada commit y la documentación de arriba, para poder explicar y defender cada decisión en la entrevista.
