@@ -1,6 +1,11 @@
 import type { FastifyPluginAsync } from 'fastify'
 
-import { createConversationInputSchema, sendMessageInputSchema } from '@mini-inbox/types'
+import {
+  createConversationInputSchema,
+  listConversationsQuerySchema,
+  sendMessageInputSchema,
+  updateConversationInputSchema
+} from '@mini-inbox/types'
 
 import type { Store } from '../store.ts'
 import { sortByLastMessage } from './sort.ts'
@@ -11,7 +16,13 @@ type IdParams = { Params: { id: string } }
 const NOT_FOUND = { message: 'Conversación no encontrada' }
 
 export const conversationRoutes: FastifyPluginAsync<Options> = async (app, { store }) => {
-  app.get('/', async () => sortByLastMessage(store.listConversations()))
+  app.get('/', async (request, reply) => {
+    const parsed = listConversationsQuerySchema.safeParse(request.query)
+    if (!parsed.success) {
+      return reply.code(400).send({ issues: parsed.error.issues })
+    }
+    return sortByLastMessage(store.listConversations(parsed.data.status))
+  })
 
   app.post('/', async (request, reply) => {
     const parsed = createConversationInputSchema.safeParse(request.body)
@@ -23,6 +34,16 @@ export const conversationRoutes: FastifyPluginAsync<Options> = async (app, { sto
 
   app.get<IdParams>('/:id', async (request, reply) => {
     const conversation = store.getConversation(request.params.id)
+    if (!conversation) return reply.code(404).send(NOT_FOUND)
+    return conversation
+  })
+
+  app.patch<IdParams>('/:id', async (request, reply) => {
+    const parsed = updateConversationInputSchema.safeParse(request.body)
+    if (!parsed.success) {
+      return reply.code(400).send({ issues: parsed.error.issues })
+    }
+    const conversation = store.updateStatus(request.params.id, parsed.data.status)
     if (!conversation) return reply.code(404).send(NOT_FOUND)
     return conversation
   })

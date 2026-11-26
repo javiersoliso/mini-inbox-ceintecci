@@ -3,10 +3,13 @@ import { useState } from 'react'
 import { ConversationDetail } from './components/ConversationDetail.tsx'
 import { ConversationList } from './components/ConversationList.tsx'
 import { NewConversationForm } from './components/NewConversationForm.tsx'
+import { StatusFilterTabs } from './components/StatusFilterTabs.tsx'
+import { useStatusFilter } from './hooks/use-status-filter.ts'
 
 export const App = () => {
   const [selectedId, setSelectedId] = useState<string>()
   const [isCreating, setIsCreating] = useState(false)
+  const [statusFilter, setStatusFilter] = useStatusFilter()
 
   return (
     <div className="layout">
@@ -30,7 +33,13 @@ export const App = () => {
           />
         )}
 
+        <StatusFilterTabs
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+
         <ConversationList
+          status={statusFilter}
           selectedId={selectedId}
           onSelect={setSelectedId}
         />

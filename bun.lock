@@ -36,6 +36,7 @@
         "@types/react-dom": "19.3.0",
         "@vitejs/plugin-react": "6.1.1",
         "vite": "8.3.2",
+        "vitest": "3.2.4",
       },
     },
     "packages/types": {

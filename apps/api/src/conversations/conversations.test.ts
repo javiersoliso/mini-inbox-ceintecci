@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Conversation, Message } from '@mini-inbox/types'
+import { phoneSchema, type Conversation, type Message } from '@mini-inbox/types'
 
 import { buildApp } from '../app.ts'
+import { seedConversations } from '../data/seed.ts'
 
 describe('GET /api/conversations', () => {
   it('devuelve las conversaciones de la más reciente a la más antigua', async () => {
@@ -63,5 +64,44 @@ describe('POST /api/conversations/:id/messages', () => {
     })
 
     expect(response.statusCode).toBe(404)
+  })
+})
+
+describe('POST /api/conversations', () => {
+  it.each(['+57 300 123 4567', '+573001234567', '300 123 4567', '(300) 123-4567', '3001234567'])(
+    'acepta el celular "%s" y lo guarda como +573001234567',
+    async (contactPhone) => {
+      const app = buildApp()
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/conversations',
+        payload: { contactName: 'Ana Martínez', contactPhone }
+      })
+
+      expect(response.statusCode).toBe(201)
+      expect(response.json<Conversation>().contactPhone).toBe('+573001234567')
+    }
+  )
+
+  it.each(['300 123 456', '+1 300 123 4567', '+57 200 123 4567', '300 abc 4567', ''])(
+    'rechaza el celular "%s"',
+    async (contactPhone) => {
+      const app = buildApp()
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/conversations',
+        payload: { contactName: 'Ana Martínez', contactPhone }
+      })
+
+      expect(response.statusCode).toBe(400)
+    }
+  )
+
+  it('los celulares de los datos existentes cumplen el mismo esquema', () => {
+    for (const { contactPhone } of seedConversations) {
+      expect(phoneSchema.parse(contactPhone)).toBe(contactPhone)
+    }
   })
 })

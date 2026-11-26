@@ -1,10 +1,18 @@
 import type { Conversation, Message } from '@mini-inbox/types'
 
 /**
- * Datos de ejemplo tal como llegan del proveedor de WhatsApp.
- * Las fechas vienen en formato "dd/mm/yyyy HH:mm".
+ * Conversación tal como llega del proveedor: `lastMessageAt` en "dd/mm/yyyy HH:mm"
+ * (hora de Colombia) y sin `status`, que es un dato nuestro y no del proveedor.
  */
-export const seedConversations: Conversation[] = [
+export type ProviderConversation = Omit<Conversation, 'status'>
+/** Mensaje tal como llega del proveedor: `sentAt` en "dd/mm/yyyy HH:mm" (hora de Colombia). */
+export type ProviderMessage = Message
+
+/**
+ * Datos de ejemplo tal como llegan del proveedor de WhatsApp.
+ * Las fechas vienen en formato "dd/mm/yyyy HH:mm". `createStore` las convierte a ISO.
+ */
+export const seedConversations: ProviderConversation[] = [
   {
     id: 'c1',
     contactName: 'Laura Gómez',
@@ -49,7 +57,7 @@ export const seedConversations: Conversation[] = [
   }
 ]
 
-export const seedMessages: Message[] = [
+export const seedMessages: ProviderMessage[] = [
   {
     id: 'm1',
     conversationId: 'c1',
